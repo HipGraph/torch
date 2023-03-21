@@ -195,3 +195,52 @@ def align(inputs, dims):
     y = inputs[idx]
     y_dim = dims[idx]
     return [align_dims(inp, y, dim, y_dim) for inp, dim in zip(inputs, dims)]
+
+
+def maybe_expand_then_cat(tensors, dim=0):
+    debug = 0
+    if debug:
+        for tensor in tensors:
+            print(tensor.shape)
+    dims = [tensor.dim() for tensor in tensors]
+    if debug:
+        print(dims)
+    idx = dims.index(max(dims))
+    if debug:
+        print(idx)
+    shape = list(tensors[idx].shape)
+    if debug:
+        print(shape)
+    shape[dim] = -1
+    if debug:
+        print(shape)
+    tensors = align(tensors, dim)
+    for i, tensor in enumerate(tensors):
+        tensors[i] = tensor.expand(shape)
+    return torch.cat(tensors, dim)
+
+
+def squeeze_not(x, dim):
+    debug = 0
+    if isinstance(dim, int):
+        dim = (dim,)
+    elif not isinstance(dim, tuple):
+        raise TypeError(dim)
+    orig_dim = x.dim()
+    dims = list(range(orig_dim))
+    for i in range(len(dim)):
+        _dim = dim[i]
+        if _dim < 0:
+            _dim = orig_dim + _dim
+        dims.remove(_dim)
+    if debug:
+        print("squeeze_dims =", dims)
+        print(x.size())
+    for i, _dim in enumerate(dims):
+        _dim -= (orig_dim - x.dim())
+        x = torch.squeeze(x, _dim)
+        if debug:
+            print("_dim =", _dim, "x =", x.size())
+    if debug:
+        input()
+    return x
