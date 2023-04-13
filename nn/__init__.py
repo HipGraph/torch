@@ -1,5 +1,6 @@
 import torch
 import torch.nn.functional as F
+import math
 
 from .. import util as pyt_util
 
@@ -14,7 +15,7 @@ class __Linear__(torch.nn.Module):
         # https://github.com/pytorch/pytorch/issues/57109
         torch.nn.init.kaiming_uniform_(self.weight, a=math.sqrt(5))
         if self.bias is not None:
-            fan_in, _ = init._calculate_fan_in_and_fan_out(self.weight)
+            fan_in, _ = torch.nn.init._calculate_fan_in_and_fan_out(self.weight)
             bound = 1 / math.sqrt(fan_in) if fan_in > 0 else 0
             torch.nn.init.uniform_(self.bias, -bound, bound)
 

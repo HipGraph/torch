@@ -65,7 +65,7 @@ class EarlyStopper:
         return self.stop()
 
     def stop(self):
-        return self.patience > 0 and self.n_plateau_steps > self.patience
+        return self.patience > 0 and self.n_plateau_steps >= self.patience
 
 
 # Override add_graph() from tensorboard.SummaryWriter to allow the passage of paramters to trace()
