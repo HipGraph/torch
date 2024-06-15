@@ -4,7 +4,7 @@ import math
 
 from .. import util as pyt_util
 
-import Utility as util
+import util
 
 
 class __Linear__(torch.nn.Module):
@@ -178,6 +178,10 @@ class kvwLinear(__Linear__):
         self.embed_size = embed_size
 
     def forward(self, x, embedding):
+        if self.debug:
+            print("w =", self.weight.shape)
+            if not self.bias is None:
+                print("b =", self.bias.shape)
         w = torch.einsum("...VD,KDOI->...KVOI", embedding, self.weight)
         b = None if self.bias is None else torch.einsum("...D,DO->...O", embedding, self.bias)
         # x.shape=(?, K, |V|, I)

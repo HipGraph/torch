@@ -49,25 +49,6 @@ for name, fn in inspect.getmembers(torch.nn.modules, inspect.isclass):
         layer_fn_map[name] = fn
 
 
-class EarlyStopper:
-
-    def __init__(self, patience, init_steps=0):
-        self.patience = patience
-        self.n_plateau_steps = init_steps
-        self.min_loss = sys.float_info.max
-
-    def step(self, loss):
-        if loss < self.min_loss:
-            self.min_loss = loss
-            self.n_plateau_steps = 0
-        else:
-            self.n_plateau_steps += 1
-        return self.stop()
-
-    def stop(self):
-        return self.patience > 0 and self.n_plateau_steps >= self.patience
-
-
 # Override add_graph() from tensorboard.SummaryWriter to allow the passage of paramters to trace()
 #   This is needed to pass strict=False so that models with dictionary outputs may be logged with add_graph()
 class SummaryWriter(SW):
@@ -182,7 +163,7 @@ def align_dims(x, y, x_dim, y_dim):
 
 
 def align(inputs, dims):
-    if not (isinstance(inputs, tuple) or isinstance(inputs, list)) or not all([isinstance(inp, torch.Tensor) for inp in inputs]):
+    if not isinstance(inputs, (tuple, list)) or not all([isinstance(inp, torch.Tensor) for inp in inputs]):
         raise ValueError("Argumet inputs must be tuple or list of tensors")
     if len(inputs) < 2:
         return inputs
